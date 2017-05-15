@@ -236,7 +236,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
             'amount' => round(number_format($this->getAmount($orderId), 2, '.', '') * 100),
             'order_desc' => __("Pay order №") . $orderId,
             'server_callback_url' => $this->urlBuilder->getUrl('fondy/url/fondysuccess'),
-            'response_url' => $this->urlBuilder->getUrl('fondy/url/fondysuccess'),
+            'response_url' => $this->urlBuilder->getUrl('checkout/onepage/success'),
             'currency' => $this->getCurrencyCode($orderId)
         );
         $sign = $this->getSignature($postData, $this->getDataIntegrityCode());
