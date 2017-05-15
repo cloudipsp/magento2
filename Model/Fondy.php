@@ -12,7 +12,6 @@ use Magento\Sales\Model\Order;
  */
 class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
 {
-
     /**
      * @var bool
      */
@@ -245,7 +244,6 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
         return $postData;
     }
 
-
     /**
      * Проверить данные ответного запроса (Pay URL)
      *
@@ -254,9 +252,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
      */
     private function checkFondyResponse($response)
     {
-
         $this->_logger->debug("checking parameters");
-
         foreach (
             [
                 "order_id",
@@ -283,7 +279,6 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
 
     }
 
-
     /**
      * Вызывается при запросе Pay URL со стороны Fondy
      *
@@ -305,13 +300,12 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
             list($orderId,) = explode('#', $responseData['order_id']);
             $order = $this->getOrder($orderId);
             if ($order && ($this->_processOrder($order, $responseData) === true)) {
-                echo "Ok";
+                //echo __("Ok");
                 return;
             }
         }
-        echo "FAIL";
+        //echo __("FAIL");
     }
-
 
     /**
      * Метод вызывается при вызове Pay URL
@@ -322,19 +316,18 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected function _processOrder(Order $order, $response)
     {
-
         $this->_logger->debug("_processFondy",
             [
                 "\$order" => $order,
                 "\$response" => $response
             ]);
         try {
-            if (round($order->getGrandTotal()*100) != $response["actual_amount"]) {
+            if (round($order->getGrandTotal() * 100) != $response["actual_amount"]) {
                 $this->_logger->debug("_processOrder: amount mismatch, order FAILED");
                 return false;
             }
             if ($response["order_status"] == 'approved') {
-                $this->createTransaction($order,$response);
+                $this->createTransaction($order, $response);
                 $order
                     ->setState(Order::STATE_PROCESSING)
                     ->setStatus($order->getConfig()->getStateDefaultStatus(Order::STATE_PROCESSING))
@@ -342,7 +335,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
                 $this->_logger->debug("_processOrder: order state changed: STATE_PROCESSING");
                 $this->_logger->debug("_processOrder: order data saved, order OK");
 
-            }else{
+            } else {
                 $order
                     ->setState(Order::STATE_CANCELED)
                     ->setStatus($order->getConfig()->getStateDefaultStatus(Order::STATE_CANCELED))
@@ -357,6 +350,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
             return false;
         }
     }
+
     public function isPaymentValid($fondySettings, $response)
     {
         if ($fondySettings['merchant_id'] != $response['merchant_id']) {
@@ -378,6 +372,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
         }
         return true;
     }
+
     public function createTransaction($order = null, $paymentData = array())
     {
         try {
@@ -387,7 +382,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
             $payment->setLastTransId($paymentData['payment_id']);
             $payment->setTransactionId($paymentData['payment_id']);
             $payment->setAdditionalInformation(
-                [\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS => (array) $paymentData]
+                [\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS => (array)$paymentData]
             );
             $formatedPrice = $order->getBaseCurrency()->formatTxt(
                 $order->getGrandTotal()
@@ -400,7 +395,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
                 ->setOrder($order)
                 ->setTransactionId($paymentData['payment_id'])
                 ->setAdditionalInformation(
-                    [\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS => (array) $paymentData]
+                    [\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS => (array)$paymentData]
                 )
                 ->setFailSafe(true)
                 //build method creates the transaction and returns the object
@@ -414,10 +409,9 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
             $payment->save();
             $order->save();
 
-            return  $transaction->save()->getTransactionId();
-        } catch (Exception $e) {
+            return $transaction->save()->getTransactionId();
+        } catch (\Exception $e) {
             $this->_logger->debug("_processOrder exception", $e->getTrace());
         }
     }
 }
-
