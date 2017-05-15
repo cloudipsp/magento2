@@ -13,7 +13,7 @@ Installation via Composer
 
     ```bash
     composer config repositories.cloudipsp git https://github.com/cloudipsp/magento2.git
-    composer require cloudipsp/magento:dev-master
+    composer require cloudipsp/magento2:dev-master
     ```
    Wait while dependencies are updated.
 
