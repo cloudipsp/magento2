@@ -1,7 +1,10 @@
-# magento2
-magento2 payment Fondy module
+# Magento 2
+Fondy payment module for magento 2.X
 
-Install
+Manual install
+=======
+
+Installation via Composer
 =======
 
 1. Go to Magento2 root folder
@@ -21,3 +24,11 @@ Install
     php bin/magento setup:upgrade
     ```
 4. Enable and configure Fondy in Magento Admin under Stores/Configuration/Payment Methods/Fondy
+
+## Installation via Magento Marketplace
+=======
+Coming soon...
+
+## Plugin Configuration
+
+Enable and configure Fondy plugin in Magento Admin under `Stores / Configuration / Sales / Payment Methods / Fondy`.
