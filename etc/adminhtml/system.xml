@@ -15,9 +15,18 @@
                 <field id="FONDY_MERCHANT_ID" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>MERCHANT ID</label>
                 </field>
+				
                 <field id="FONDY_SECRET_KEY" translate="label,comment" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Secret key</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+				<field id="order_status" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>New Order Status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                </field>
+				<field id="invoice_before_fraud_review" translate="label" type="select" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Enable Holding</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="allowed_carrier" translate="label" type="multiselect" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Allowed Shipping Methods</label>

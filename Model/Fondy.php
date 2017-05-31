@@ -238,6 +238,9 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
             'response_url' => $this->urlBuilder->getUrl('checkout/onepage/success'),
             'currency' => $this->getCurrencyCode($orderId)
         );
+		if ($this->getConfigData("invoice_before_fraud_review")){
+			$postData['preauth'] = "Y";
+		}
         $sign = $this->getSignature($postData, $this->getDataIntegrityCode());
         $postData['signature'] = $sign;
 
@@ -327,10 +330,10 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
                 return false;
             }
             if ($response["order_status"] == 'approved') {
-                $this->createTransaction($order, $response);
+                $this->createTransaction($order,$response);			
                 $order
-                    ->setState(Order::STATE_PROCESSING)
-                    ->setStatus($order->getConfig()->getStateDefaultStatus(Order::STATE_PROCESSING))
+                    ->setState($this->getConfigData("order_status"))
+                    ->setStatus($order->getConfig()->getStateDefaultStatus($this->getConfigData("order_status")))
                     ->save();
                 $this->_logger->debug("_processOrder: order state changed: STATE_PROCESSING");
                 $this->_logger->debug("_processOrder: order data saved, order OK");
