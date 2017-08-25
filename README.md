@@ -45,7 +45,7 @@ Installation via Composer
 
 ## Installation via Magento Marketplace
 =======
-Coming soon...
+https://marketplace.magento.com/cloudipsp-fondy.html
 
 ## Plugin Configuration
 
