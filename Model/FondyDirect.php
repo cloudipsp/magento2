@@ -20,8 +20,6 @@ class FondyDirect extends \Magento\Payment\Model\Method\Cc
     protected $_canRefund = true;
     protected $_canRefundInvoicePartial = true;
 
-    protected $_countryFactory;
-
     protected $_minAmount = null;
     protected $_maxAmount = null;
 
@@ -29,7 +27,6 @@ class FondyDirect extends \Magento\Payment\Model\Method\Cc
     protected $_logger;
 
     protected $urlBuilder;
-    protected $resultJsonFactory;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -41,9 +38,7 @@ class FondyDirect extends \Magento\Payment\Model\Method\Cc
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Framework\Module\ModuleListInterface $moduleList,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate,
-        \Magento\Directory\Model\AllowedCountries $countryFactory,
         \Magento\Framework\UrlInterface $urlBuilder,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
         array $data = array()
     )
     {
@@ -64,13 +59,11 @@ class FondyDirect extends \Magento\Payment\Model\Method\Cc
         $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/fondy_direct.log');
         $this->_logger = new \Zend\Log\Logger();
         $this->_logger->addWriter($writer);
-        $this->_countryFactory = $countryFactory;
 
         $this->_minAmount = $this->getConfigData('min_order_total');
         $this->_maxAmount = $this->getConfigData('max_order_total');
 
         $this->urlBuilder = $urlBuilder;
-        $this->resultJsonFactory = $resultJsonFactory;
     }
 
     /**
