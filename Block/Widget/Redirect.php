@@ -3,7 +3,7 @@
 namespace Fondy\Fondy\Block\Widget;
 
 /**
- * Abstract class for Cash On Delivery and Bank Transfer payment method form
+ * Abstract class
  */
 use \Magento\Framework\View\Element\Template;
 
@@ -84,7 +84,6 @@ class Redirect extends Template
      */
     public function getGateUrl()
     {
-		//print_r ($this->Config->getGateUrl()); die;
         return $this->Config->getGateUrl();
     }
 
@@ -113,7 +112,7 @@ class Redirect extends Template
      */
     public function getPostData()
     {
-        $orderId = $this->_checkoutSession->getLastOrderId(); 
+        $orderId = $this->_checkoutSession->getLastOrderId();
         if ($orderId) 
         {
             $incrementId = $this->_checkoutSession->getLastRealOrderId();
@@ -124,7 +123,7 @@ class Redirect extends Template
 
 
     /**
-     * Получить Pay URL
+     * Получить callback URL
      *
      * @return array
      */
@@ -132,7 +131,6 @@ class Redirect extends Template
     {
 
         $baseUrl = $this->getUrl("fondy/url");
-        //print_R ($baseUrl);die;
         return "{$baseUrl}fondysuccess";
     }
 }

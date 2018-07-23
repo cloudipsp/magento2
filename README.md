@@ -45,8 +45,13 @@ Installation via Composer
 
 ## Installation via Magento Marketplace
 =======
+
 https://marketplace.magento.com/cloudipsp-fondy.html
 
 ## Plugin Configuration
 
 Enable and configure Fondy plugin in Magento Admin under `Stores / Configuration / Sales / Payment Methods / Fondy`.
+
+## Updates
+
+v2.0 - Added direct method

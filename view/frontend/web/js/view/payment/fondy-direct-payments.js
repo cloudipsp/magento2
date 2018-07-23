@@ -10,8 +10,8 @@ define(
         'use strict';
         rendererList.push(
             {
-                type: 'fondy',
-                component: 'Fondy_Fondy/js/view/payment/method-renderer/fondy-method'
+                type: 'fondy_direct',
+                component: 'Fondy_Fondy/js/view/payment/method-renderer/fondy-direct-method'
             }
         );
         /** Add view logic here if needed */
