@@ -239,7 +239,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
             'order_desc' => __("Pay order №") . $orderId,
             'product_id' => 'Fondy',
             'server_callback_url' => $this->urlBuilder->getUrl('fondy/url/fondysuccess'),
-            'response_url' => $this->urlBuilder->getUrl('fondy/url/fondysuccess'),//$this->urlBuilder->getUrl('checkout/onepage/success'),
+            'response_url' => $this->urlBuilder->getUrl('checkout/onepage/success'),
             'currency' => $this->getCurrencyCode($orderId)
         );
         if ($this->getConfigData("invoice_before_fraud_review")) {

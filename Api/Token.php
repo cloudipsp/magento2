@@ -136,7 +136,7 @@ class Token implements ApiInterface
                 'product_id' => 'FondyDirect',
                 'order_desc' => __("Pay order №") . $orderId,
                 'server_callback_url' => $this->urlBuilder->getUrl('fondy/url/fondysuccess'),
-                'response_url' => $this->urlBuilder->getUrl('fondy/url/fondysuccess'),//$this->urlBuilder->getUrl('checkout/onepage/success'),
+                'response_url' => $this->urlBuilder->getUrl('checkout/onepage/success'),
                 'currency' => $this->_checkoutSession->getQuote()->getCurrency()->getBaseCurrencyCode()
             ];
             $sign = $this->getSignature($requestData, $decrypted_key);
