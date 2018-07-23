@@ -33,7 +33,7 @@ define(
                 template: 'Fondy_Fondy/payment/fondy_direct',
                 checkout: null,
                 token: null,
-                redirectUrl: window.checkoutConfig.defaultSuccessPageUrl
+                redirectUrl: 'checkout/onepage/success'
             },
             initialize: function () {
                 this._super();
