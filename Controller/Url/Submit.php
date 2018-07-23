@@ -1,5 +1,4 @@
 <?php
-
 namespace Fondy\Fondy\Controller\Url;
 
 use Magento\Framework\App\Action\Action;
@@ -9,16 +8,17 @@ use Magento\Framework\Controller\ResultFactory;
 class Submit extends Action
 {
     /** @var \Magento\Framework\View\Result\PageFactory */
-    protected $resultPageFactory;
-
-    protected $fondy;
+    public $resultPageFactory;
+    /**
+     * @var \Fondy\Fondy\Block\Widget\Redirect
+     */
+    public $fondy;
 
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\View\Result\PageFactory $resultPageFactory,
         \Fondy\Fondy\Block\Widget\Redirect $fondy_form
-    )
-    {
+    ) {
         $this->resultPageFactory = $resultPageFactory;
         $this->fondy = $fondy_form;
         parent::__construct($context);
@@ -29,10 +29,9 @@ class Submit extends Action
         $page = $this->resultPageFactory->create();
         $post_data = $this->fondy->getPostData();
         $request = $this->doRequest($post_data);
-        $url = json_decode($request, TRUE);
+        $url = json_decode($request, true);
         if (isset($url['response']['checkout_url'])) {
-            header("Location: " . $url['response']['checkout_url']);
-            exit();
+            $this->_redirect->redirect($this->_response, $url['response']['checkout_url']);
         }
 
         return $page;

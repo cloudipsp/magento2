@@ -1,5 +1,4 @@
 <?php
-
 namespace Fondy\Fondy\Block\Widget;
 
 /**

@@ -1,5 +1,4 @@
 <?php
-
 namespace Fondy\Fondy\Model;
 
 use Magento\Quote\Api\Data\CartInterface;
@@ -68,8 +67,8 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Sales\Model\OrderFactory $orderFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        array $data = [])
-    {
+        array $data = []
+    ) {
         $this->orderFactory = $orderFactory;
         $this->urlBuilder = $urlBuilder;
         $this->_transactionBuilder = $builderInterface;
@@ -261,13 +260,9 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
     private function checkFondyResponse($response)
     {
         $this->_logger->debug("checking parameters");
-        foreach (
-            [
-                "order_id",
-                "order_status",
-                "signature"
-            ]
-            as $param) {
+        foreach (["order_id",
+                     "order_status",
+                     "signature"] as $param) {
             if (!isset($response[$param])) {
                 $this->_logger->debug("Pay URL: required field \"{$param}\" is missing");
                 return false;
@@ -289,20 +284,19 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
     }
 
     /**
-     * Вызывается при запросе callback URL со стороны Fondy
-     *
      * @param $responseData
+     * @return string
      */
     public function processResponse($responseData)
     {
         if (empty($responseData))
-            die('No Data');
+            return 'No Data';
         if ($responseData['product_id'] == 'FondyDirect') {
             $this->_code = 'fondy_direct';
         } elseif ($responseData['product_id'] == 'Fondy') {
             $this->_code = 'fondy';
         } else {
-            die(__("FAIL"));
+            return 'FAIL';
         }
         $debugData = ['response' => $responseData];
         $this->_logger->debug("processResponse", $debugData);
@@ -312,12 +306,12 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
             $order = $this->getOrder($orderId);
             $state = $order->getStatus();
             if (!empty($state) && $order && ($this->_processOrder($order, $responseData) === true)) {
-                die(__("Ok"));
-            }else{
-                die(__("FAIL NO ORDER DEBIT METHOD"));
+                return 'OK';
+            } else {
+                return 'FAIL';
             }
         }
-        die(__("FAIL"));
+        return 'FAIL';
     }
 
     /**
