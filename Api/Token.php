@@ -99,10 +99,11 @@ class Token implements ApiInterface
             $orderId = $this->_checkoutSession->getQuote()->getReservedOrderId();
         }
         $sessionToken = $this->_checkoutSession->getTestData();
-        
+
         if (isset($sessionToken['fondy_token']) and
             isset($sessionToken['fondy_amount']) and
-            $sessionToken['fondy_amount'] == $calcAmount
+            $sessionToken['fondy_amount'] == $calcAmount and
+            $sessionToken['fondy_id'] == $orderId
         ) {
             $response = [
                 'response' => [
@@ -114,24 +115,24 @@ class Token implements ApiInterface
         }
         $addData = $cart->getQuote()->getBillingAddress()->getData();
         $addInfo = [
-            'email' => $addData['email'],
-            'firstname' => $addData['firstname'],
-            'middlename' => $addData['middlename'],
-            'lastname' => $addData['lastname'],
-            'company' => $addData['company'],
-            'street' => $addData['street'],
-            'city' => $addData['city'],
-            'region' => $addData['region']
+            'email' => isset($addData['email']) ? $addData['email'] : '',
+            'firstname' => isset($addData['firstname']) ? $addData['firstname'] : '',
+            'middlename' => isset($addData['middlename']) ? $addData['middlename'] : '',
+            'lastname' => isset($addData['lastname']) ? $addData['lastname'] : '',
+            'company' => isset($addData['company']) ? $addData['company'] : '',
+            'street' => isset($addData['street']) ? $addData['street'] : '',
+            'city' => isset($addData['city']) ? $addData['city'] : '',
+            'region' => isset($addData['region']) ? $addData['region'] : ''
         ];
 
         try {
             $decrypted_key = $this->encryptor->decrypt($this->_config['secret_key']);
             $merchant_id = $this->_config['merchant_id'];
+            $merchant_data = json_encode($addInfo);
             $requestData = [
                 'order_id' => $orderId . "#" . time(),
                 'merchant_id' => $merchant_id,
                 'amount' => $calcAmount,
-                'merchant_data' => json_encode($addInfo),
                 'lang' => $lang[0],
                 'product_id' => 'FondyDirect',
                 'order_desc' => __("Pay order №") . $orderId,
@@ -139,6 +140,8 @@ class Token implements ApiInterface
                 'response_url' => $this->urlBuilder->getUrl('checkout/onepage/success'),
                 'currency' => $this->_checkoutSession->getQuote()->getCurrency()->getBaseCurrencyCode()
             ];
+            if(!empty($merchant_data))
+                $requestData['merchant_data'] = $merchant_data;
             $sign = $this->getSignature($requestData, $decrypted_key);
             $requestData['signature'] = $sign;
 
@@ -150,7 +153,8 @@ class Token implements ApiInterface
                 $this->_checkoutSession->setTestData(
                     [
                         'fondy_token' => $token['response']['token'],
-                        'fondy_amount' => $requestData['amount']
+                        'fondy_amount' => $requestData['amount'],
+                        'fondy_id' => $orderId
                     ]
                 );
             }

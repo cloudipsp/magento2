@@ -89,10 +89,10 @@ define(
                                 return false;
                             }
                         }
-                    );
-
-                    self.isPlaceOrderActionAllowed(true);
-
+                    ).fail(function (data) {
+                        fullScreenLoader.stopLoader();
+                        self.isPlaceOrderActionAllowed(true);
+                    });
                     return false;
                 }
                 return false;

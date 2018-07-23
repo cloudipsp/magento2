@@ -4,7 +4,7 @@
     <route url="/V1/fondy/get-payment-token" method="POST">
         <service class="Fondy\Fondy\Api\ApiInterface" method="getToken"/>
         <resources>
-            <resource ref="self"/>
+            <resource ref="anonymous"/>
         </resources>
     </route>
 </routes>
