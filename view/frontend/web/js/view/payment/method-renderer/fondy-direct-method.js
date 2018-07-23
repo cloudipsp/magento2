@@ -114,16 +114,13 @@ define(
                 };
                 self.fcheckout.scope(function () {
                     this.request("api.checkout.form", "request", r).done(function (e) {
-                        placeOrder = placeOrderAction(self.getData(), this.messageContainer);
-                        $.when(placeOrder).fail(function () {
-                            fullScreenLoader.stopLoader();
-                            self.isPlaceOrderActionAllowed(true);
-                        }).done(
-                            fullScreenLoader.stopLoader(),
-                            self.afterPlaceOrder.bind(self)
-                        );
+                        self.fodnyPlaceOrder(placeOrder);
                         return true;
                     }).fail(function (e) {
+                        if (e.data.error.code === 2009) {
+                            self.fodnyPlaceOrder(placeOrder);
+                            return true;
+                        }
                         if (e.data.error)
                             self.messageContainer.addErrorMessage({message: e.data.error.message});
                         else
@@ -133,6 +130,18 @@ define(
                         return false;
                     })
                 });
+            },
+            fodnyPlaceOrder: function (placeOrder) {
+                var self = this;
+                placeOrder = placeOrderAction(self.getData(), self.messageContainer);
+                $.when(placeOrder).fail(function () {
+                    fullScreenLoader.stopLoader();
+                    self.isPlaceOrderActionAllowed(true);
+                }).done(
+                    fullScreenLoader.stopLoader(),
+                    self.afterPlaceOrder.bind(self)
+                );
+                return true;
             },
             /**
              * @returns {Boolean}

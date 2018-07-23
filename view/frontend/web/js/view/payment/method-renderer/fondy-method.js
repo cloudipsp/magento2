@@ -36,14 +36,8 @@ define(
                     event.preventDefault();
                 }
                 var self = this,
-                    placeOrder,
-                    emailValidationResult = customer.isLoggedIn(),
-                    loginFormSelector = 'form[data-role=email-with-possible-login]';
-                if (!customer.isLoggedIn()) {
-                    $(loginFormSelector).validation();
-                    emailValidationResult = Boolean($(loginFormSelector + ' input[name=username]').valid());
-                }
-                if (emailValidationResult && this.validate() && additionalValidators.validate()) {
+                    placeOrder;
+                if (this.validate() && additionalValidators.validate()) {
                     this.isPlaceOrderActionAllowed(false);
                     placeOrder = placeOrderAction(this.getData(), false, this.messageContainer);
 
