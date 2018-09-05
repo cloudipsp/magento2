@@ -5,12 +5,22 @@
     <default>
         <payment>
             <fondy>
-                <model>Fondy\Fondy\Model\Fondy</model>
                 <group>offline</group>
+                <model>Fondy\Fondy\Model\Fondy</model>
                 <active>1</active>
                 <title>Fondy</title>
                 <payment_action>https://api.fondy.eu/api/checkout/redirect/</payment_action>
             </fondy>
+            <fondy_direct>
+                <group>offline</group>
+                <model>Fondy\Fondy\Model\FondyDirect</model>
+                <payment_action>authorize_capture</payment_action>
+                <active>1</active>
+                <title>FondyDirect</title>
+                <cctypes>AE,VI,MC,DI,JCB</cctypes>
+                <allowspecific>0</allowspecific>
+                <min_order_total>0.50</min_order_total>
+            </fondy_direct>
         </payment>
     </default>
 </config>

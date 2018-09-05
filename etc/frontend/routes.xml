@@ -4,5 +4,8 @@
         <route id="fondy" frontName="fondy">
             <module name="Fondy_Fondy" />
         </route>
+        <route id="fondy_direct" frontName="fondy_direct">
+            <module name="Fondy_Fondy" />
+        </route>
     </router>
 </config>

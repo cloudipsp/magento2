@@ -1,13 +1,16 @@
 <form action="<?php echo $block->getGateUrl(); ?>" method="POST" id="FONDY_payment_form" style="display: none">
-	<?php if (!is_null($this->getPostData())): ?>
-		<?php foreach ($this->getPostData() as $name => $value): ?>
-			<input type="hidden" name="<?php echo $block->escapeHtml($name); ?>" value="<?php echo $block->escapeHtml($value); ?>" />
-		<?php endforeach;?>
-	<?php endif; ?>
+    <?php if (!is_null($block->getPostData())): ?>
+        <?php foreach ($block->getPostData() as $name => $value): ?>
+            <input type="hidden" name="<?php echo $block->escapeHtml($name); ?>"
+                   value="<?php echo $block->escapeHtml($value); ?>"/>
+        <?php endforeach; ?>
+    <?php endif; ?>
 </form>
+<button class="action primary" type="submit" form="FONDY_payment_form">Submit</button>
 <script type="text/javascript">
-	require(["jquery"], function ($)
-	{
-		$('#FONDY_payment_form').submit();
-	});
+    require(["jquery"], function ($) {
+        $(document).ready(function () {
+            setTimeout(function() {$('#FONDY_payment_form').submit(); }, 1500);
+        });
+    });
 </script>
