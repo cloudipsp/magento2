@@ -6,7 +6,6 @@
 
 namespace Fondy\Fondy\Model;
 
-
 class FondyDirect extends \Magento\Payment\Model\Method\Cc
 {
     const CODE = 'fondy_direct';
@@ -39,6 +38,8 @@ class FondyDirect extends \Magento\Payment\Model\Method\Cc
         \Magento\Framework\Module\ModuleListInterface $moduleList,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate,
         \Magento\Framework\UrlInterface $urlBuilder,
+        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = array()
     )
     {
@@ -52,8 +53,8 @@ class FondyDirect extends \Magento\Payment\Model\Method\Cc
             $logger,
             $moduleList,
             $localeDate,
-            null,
-            null,
+            $resource,
+            $resourceCollection,
             $data
         );
         $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/fondy_direct.log');
@@ -86,6 +87,7 @@ class FondyDirect extends \Magento\Payment\Model\Method\Cc
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
+
         if ($quote && (
                 $quote->getBaseGrandTotal() < $this->_minAmount
                 || ($this->_maxAmount && $quote->getBaseGrandTotal() > $this->_maxAmount))

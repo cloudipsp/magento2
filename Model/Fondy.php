@@ -1,4 +1,5 @@
 <?php
+
 namespace Fondy\Fondy\Model;
 
 use Magento\Quote\Api\Data\CartInterface;
@@ -68,7 +69,8 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
-    ) {
+    )
+    {
         $this->orderFactory = $orderFactory;
         $this->urlBuilder = $urlBuilder;
         $this->_transactionBuilder = $builderInterface;
@@ -179,7 +181,20 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected function isCarrierAllowed($shippingMethod)
     {
-        return strpos($this->getConfigData('allowed_carrier'), $shippingMethod) !== false;
+        $allowedConfig = $this->getConfigData('allowed_carrier');
+
+        if ($allowedConfig == '' || !$allowedConfig) {
+            return true;
+        }
+
+        $allow = explode(',', $allowedConfig);
+        foreach ($allow as $v) {
+            if (preg_match("/{$v}/i", $shippingMethod)) {
+                return true;
+            }
+        }
+
+        return strpos($allowedConfig, $shippingMethod) !== false;
     }
 
 
@@ -196,8 +211,8 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
             return false;
         }
         return parent::isAvailable($quote) && $this->isCarrierAllowed(
-            $quote->getShippingAddress()->getShippingMethod()
-        );
+                $quote->getShippingAddress()->getShippingMethod()
+            );
     }
 
 
