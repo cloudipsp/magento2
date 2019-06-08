@@ -30,8 +30,9 @@ class Submit extends Action
         $post_data = $this->fondy->getPostData();
         $request = $this->doRequest($post_data);
         $url = json_decode($request, true);
+
         if (isset($url['response']['checkout_url'])) {
-            $this->_redirect->redirect($this->_response, $url['response']['checkout_url']);
+            return $this->_redirect->redirect($this->_response, $url['response']['checkout_url']);
         }
 
         return $page;
