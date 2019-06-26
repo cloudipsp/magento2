@@ -1,9 +1,11 @@
 <?php
+
 namespace Fondy\Fondy\Block\Widget;
 
 /**
  * Abstract class
  */
+
 use \Magento\Framework\View\Element\Template;
 
 
@@ -64,7 +66,8 @@ class Redirect extends Template
         \Magento\Framework\App\Http\Context $httpContext,
         \Fondy\Fondy\Model\Fondy $paymentConfig,
         array $data = []
-    ) {
+    )
+    {
         parent::__construct($context, $data);
         $this->_checkoutSession = $checkoutSession;
         $this->_customerSession = $customerSession;
@@ -94,35 +97,33 @@ class Redirect extends Template
      */
     public function getAmount()
     {
-    	$orderId = $this->_checkoutSession->getLastOrderId(); 
-        if ($orderId) 
-        {
+        $orderId = $this->_checkoutSession->getLastOrderId();
+        if ($orderId) {
             $incrementId = $this->_checkoutSession->getLastRealOrderId();
-        	return $this->Config->getAmount($incrementId);
-    	}
+            return $this->Config->getAmount($incrementId);
+        }
         return null;
     }
 
 
     /**
-     * Получить данные формы
+     * Get forma data
      *
      * @return array|null
      */
     public function getPostData()
     {
         $orderId = $this->_checkoutSession->getLastOrderId();
-        if ($orderId) 
-        {
+        if ($orderId) {
             $incrementId = $this->_checkoutSession->getLastRealOrderId();
-        	return $this->Config->getPostData($incrementId);
-	    }
+            return $this->Config->getPostData($incrementId);
+        }
         return null;
     }
 
 
     /**
-     * Получить callback URL
+     * Get callback URL
      *
      * @return array
      */

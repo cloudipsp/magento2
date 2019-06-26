@@ -1,11 +1,15 @@
 <?php
+
 namespace Fondy\Fondy\Controller\Url;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Sales\Model\Order;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\App\CsrfAwareActionInterface;
+use Magento\Framework\App\Request\InvalidRequestException;
+use Magento\Framework\App\RequestInterface;
 
-class Submit extends Action
+class Submit extends Action implements CsrfAwareActionInterface
 {
     /** @var \Magento\Framework\View\Result\PageFactory */
     public $resultPageFactory;
@@ -14,12 +18,20 @@ class Submit extends Action
      */
     public $fondy;
 
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    protected $_checkoutSession;
+
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
+        \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Framework\View\Result\PageFactory $resultPageFactory,
         \Fondy\Fondy\Block\Widget\Redirect $fondy_form
-    ) {
+    )
+    {
         $this->resultPageFactory = $resultPageFactory;
+        $this->_checkoutSession = $checkoutSession;
         $this->fondy = $fondy_form;
         parent::__construct($context);
     }
@@ -33,9 +45,31 @@ class Submit extends Action
 
         if (isset($url['response']['checkout_url'])) {
             return $this->_redirect->redirect($this->_response, $url['response']['checkout_url']);
+        } else {
+            $this->restoreCart();
         }
 
         return $page;
+    }
+
+    /**
+     * @param RequestInterface $request
+     * @return InvalidRequestException|null
+     */
+    public function createCsrfValidationException(
+        RequestInterface $request
+    ): ?InvalidRequestException
+    {
+        return null;
+    }
+
+    /**
+     * @param RequestInterface $request
+     * @return bool|null
+     */
+    public function validateForCsrf(RequestInterface $request): ?bool
+    {
+        return true;
     }
 
     /**
@@ -78,5 +112,21 @@ class Submit extends Action
             throw new \Magento\Framework\Validator\Exception(__('Payment capturing error.'));
         }
 
+    }
+
+    /**
+     * Restore cart data
+     */
+    public function restoreCart()
+    {
+        $lastQuoteId = $this->_checkoutSession->getLastQuoteId();
+        if ($quote = $this->_objectManager->get('Magento\Quote\Model\Quote')->loadByIdWithoutStore($lastQuoteId)) {
+            $quote->setIsActive(true)
+                ->setReservedOrderId(null)
+                ->save();
+            $this->_checkoutSession->setQuoteId($lastQuoteId);
+        }
+        $message = __('Payment failed. Please try again.');
+        $this->messageManager->addError($message);
     }
 }

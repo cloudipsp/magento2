@@ -9,24 +9,50 @@ namespace Fondy\Fondy\Model;
 class FondyDirect extends \Magento\Payment\Model\Method\Cc
 {
     const CODE = 'fondy_direct';
-
+    /**
+     * @var string
+     */
     protected $_code = self::CODE;
-
+    /**
+     * @var bool
+     */
     protected $_isGateway = true;
     protected $_canCapture = true;
     protected $_canAuthorize = true;
     protected $_canCapturePartial = true;
-    protected $_canRefund = true;
-    protected $_canRefundInvoicePartial = true;
-
+    protected $_canRefund = false;
+    protected $_canRefundInvoicePartial = false;
+    /**
+     * @var mixed|null
+     */
     protected $_minAmount = null;
     protected $_maxAmount = null;
-
+    /**
+     * @var array
+     */
     protected $_debugReplacePrivateDataKeys = ['number', 'exp_month', 'exp_year', 'cvc'];
     protected $_logger;
-
+    /**
+     * @var \Magento\Framework\UrlInterface
+     */
     protected $urlBuilder;
 
+    /**
+     * FondyDirect constructor.
+     * @param \Magento\Framework\Model\Context $context
+     * @param \Magento\Framework\Registry $registry
+     * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
+     * @param \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory
+     * @param \Magento\Payment\Helper\Data $paymentData
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * @param \Magento\Payment\Model\Method\Logger $logger
+     * @param \Magento\Framework\Module\ModuleListInterface $moduleList
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate
+     * @param \Magento\Framework\UrlInterface $urlBuilder
+     * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
+     * @param \Magento\Framework\Data\Collection\AbstractDb|null $resourceCollection
+     * @param array $data
+     */
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,

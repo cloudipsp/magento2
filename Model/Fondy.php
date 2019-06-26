@@ -19,7 +19,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var bool
      */
-    protected $_isGateway = true;
+    protected $_isGateway = false;
     /**
      * Payment code
      *
@@ -51,6 +51,8 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
     protected $_transactionBuilder;
 
     protected $_logger;
+
+    protected $_canUseCheckout = true;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -157,22 +159,6 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
 
 
     /**
-     * Set order state and status
-     * (Этот метод вызывается при нажатии на кнопку "Place Order")
-     *
-     * @param string $paymentAction
-     * @param \Magento\Framework\DataObject $stateObject
-     * @return void
-     */
-    public function initialize($paymentAction, $stateObject)
-    {
-        $stateObject->setState(Order::STATE_PENDING_PAYMENT);
-        $stateObject->setStatus(Order::STATE_PENDING_PAYMENT);
-        $stateObject->setIsNotified(false);
-    }
-
-
-    /**
      * Check whether payment method can be used with selected shipping method
      * (Проверка возможности доставки)
      *
@@ -217,8 +203,6 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
 
 
     /**
-     * Получить адрес платежного шлюза
-     *
      * @return string
      */
     public function getGateUrl()
@@ -228,9 +212,8 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
 
 
     /**
-     * Получить код проверки целостности данных из конфигурации
-     *
-     * @return mixed
+     * @return string
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getDataIntegrityCode()
     {
@@ -249,7 +232,9 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
         $postData = array(
             'order_id' => $orderId . "#" . time(),
             'merchant_id' => $this->getConfigData("FONDY_MERCHANT_ID"),
-            'amount' => round(number_format($this->getAmount($orderId), 2, '.', '') * 100),
+            'amount' => round(
+                number_format($this->getAmount($orderId), 2, '.', '') * 100
+            ),
             'order_desc' => __("Pay order №") . $orderId,
             'product_id' => 'Fondy',
             'server_callback_url' => $this->urlBuilder->getUrl('fondy/url/fondysuccess'),
@@ -275,9 +260,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
     private function checkFondyResponse($response)
     {
         $this->_logger->debug("checking parameters");
-        foreach (["order_id",
-                     "order_status",
-                     "signature"] as $param) {
+        foreach (["order_id", "order_status", "signature"] as $param) {
             if (!isset($response[$param])) {
                 $this->_logger->debug("Pay URL: required field \"{$param}\" is missing");
                 return false;
@@ -304,8 +287,6 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function processResponse($responseData)
     {
-        if (empty($responseData))
-            return 'No Data';
         if ($responseData['product_id'] == 'FondyDirect') {
             $this->_code = 'fondy_direct';
         } elseif ($responseData['product_id'] == 'Fondy') {
@@ -344,7 +325,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
                 "\$response" => $response
             ]);
         try {
-            if (round($order->getGrandTotal() * 100) != $response["actual_amount"]) {
+            if (round($order->getGrandTotal() * 100) != $response["amount"]) {
                 $this->_logger->debug("_processOrder: amount mismatch, order FAILED");
                 return false;
             }
