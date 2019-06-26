@@ -107,9 +107,8 @@ class Redirect extends Template
 
 
     /**
-     * Get forma data
-     *
      * @return array|null
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getPostData()
     {
@@ -125,7 +124,7 @@ class Redirect extends Template
     /**
      * Get callback URL
      *
-     * @return array
+     * @return string
      */
     public function getPayUrl()
     {

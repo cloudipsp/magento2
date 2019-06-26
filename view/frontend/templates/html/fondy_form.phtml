@@ -1,5 +1,5 @@
 <form action="<?php echo $block->getGateUrl(); ?>" method="POST" id="FONDY_payment_form" style="display: none">
-    <?php if (!is_null($block->getPostData())): ?>
+    <?php if ( $block->getPostData() !== null ): ?>
         <?php foreach ($block->getPostData() as $name => $value): ?>
             <input type="hidden" name="<?php echo $block->escapeHtml($name); ?>"
                    value="<?php echo $block->escapeHtml($value); ?>"/>
@@ -7,7 +7,7 @@
     <?php endif; ?>
 </form>
 <button class="action primary" type="submit" form="FONDY_payment_form">Submit</button>
-<script type="text/javascript">
+<script type="text/x-magento-init">
     require(["jquery"], function ($) {
         $(document).ready(function () {
             setTimeout(function() {$('#FONDY_payment_form').submit(); }, 500);

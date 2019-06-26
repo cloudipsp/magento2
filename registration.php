@@ -1,7 +1,7 @@
 <?php
 /*
  * @author      DM
- * @copyright   2017 Fondy
+ * @copyright   2019 Fondy
  * @license     http://opensource.org/licenses/gpl-2.0.php GNU General Public License, version 2 (GPL-2.0)
  */
 \Magento\Framework\Component\ComponentRegistrar::register(

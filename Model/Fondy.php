@@ -160,10 +160,9 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
 
     /**
      * Check whether payment method can be used with selected shipping method
-     * (Проверка возможности доставки)
-     *
-     * @param string $shippingMethod
+     * @param $shippingMethod
      * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     protected function isCarrierAllowed($shippingMethod)
     {
@@ -186,10 +185,9 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
 
     /**
      * Check whether payment method can be used
-     * (Проверка на доступность метода оплаты)
-     *
      * @param CartInterface|null $quote
      * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
@@ -222,10 +220,10 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
 
 
     /**
-     * Получить массив параметр для формы оплаты
-     *
+     * Get form array
      * @param $orderId
      * @return array
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getPostData($orderId)
     {
@@ -252,10 +250,10 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
     }
 
     /**
-     * Проверить данные ответного запроса (callback URL)
-     *
+     * Checking callback data
      * @param $response
      * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     private function checkFondyResponse($response)
     {
@@ -284,6 +282,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @param $responseData
      * @return string
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function processResponse($responseData)
     {
@@ -375,6 +374,11 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
         return true;
     }
 
+    /**
+     * @param null $order
+     * @param array $paymentData
+     * @return mixed
+     */
     public function createTransaction($order = null, $paymentData = array())
     {
         try {
@@ -412,8 +416,10 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
             $order->save();
 
             return $transaction->save()->getTransactionId();
+
         } catch (\Exception $e) {
             $this->_logger->debug("_processOrder exception", $e->getTrace());
+            return false;
         }
     }
 
@@ -421,7 +427,6 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
      * @param string $field
      * @param null $storeId
      * @return mixed
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getConfigData($field, $storeId = null)
     {

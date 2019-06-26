@@ -42,7 +42,7 @@ class FondySuccess extends Action implements CsrfAwareActionInterface
      */
     public function createCsrfValidationException(
         RequestInterface $request
-    ): ?InvalidRequestException
+    ): InvalidRequestException
     {
         return null;
     }
@@ -51,15 +51,14 @@ class FondySuccess extends Action implements CsrfAwareActionInterface
      * @param RequestInterface $request
      * @return bool|null
      */
-    public function validateForCsrf(RequestInterface $request): ?bool
+    public function validateForCsrf(RequestInterface $request): bool
     {
         return true;
     }
 
     /**
+     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\Result\Json|\Magento\Framework\Controller\ResultInterface
      * Load the page defined
-     *
-     * @return \Magento\Framework\View\Result\Page
      */
     public function execute()
     {

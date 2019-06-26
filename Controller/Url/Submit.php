@@ -58,7 +58,7 @@ class Submit extends Action implements CsrfAwareActionInterface
      */
     public function createCsrfValidationException(
         RequestInterface $request
-    ): ?InvalidRequestException
+    ): InvalidRequestException
     {
         return null;
     }
@@ -67,7 +67,7 @@ class Submit extends Action implements CsrfAwareActionInterface
      * @param RequestInterface $request
      * @return bool|null
      */
-    public function validateForCsrf(RequestInterface $request): ?bool
+    public function validateForCsrf(RequestInterface $request): bool
     {
         return true;
     }

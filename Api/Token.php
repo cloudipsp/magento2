@@ -140,7 +140,7 @@ class Token implements ApiInterface
                 'response_url' => $this->urlBuilder->getUrl('checkout/onepage/success'),
                 'currency' => $this->_checkoutSession->getQuote()->getCurrency()->getBaseCurrencyCode()
             ];
-            if(!empty($merchant_data))
+            if (!empty($merchant_data))
                 $requestData['merchant_data'] = $merchant_data;
             $sign = $this->getSignature($requestData, $decrypted_key);
             $requestData['signature'] = $sign;
