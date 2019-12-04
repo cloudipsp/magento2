@@ -188,22 +188,9 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
         }
 
         $addInfo = [
-            'Email' => isset($addData['email']) ? $addData['email'] : '',
-            'Firstname' => isset($addData['firstname']) ? $addData['firstname'] : '',
-            'Middlename' => isset($addData['middlename']) ? $addData['middlename'] : '',
-            'Lastname' => isset($addData['lastname']) ? $addData['lastname'] : '',
-            'Company' => isset($addData['company']) ? $addData['company'] : '',
-            'Street' => isset($addData['street']) ? $addData['street'] : '',
-            'City' => isset($addData['city']) ? $addData['city'] : '',
-            'Region' => isset($addData['region']) ? $addData['region'] : '',
-            'Phone' => isset($addData['telephone']) ? $addData['telephone'] : '',
+            'Fullname' => $addData['firstname'] . ' ' . $addData['middlename'] . ' ' . $addData['lastname'],
             'Products Sku' => $skuString
         ];
-        try {
-            $addInfo['Shipping total'] = number_format($order->getShippingAmount(), 2, '.', '');
-        } catch (Exception $e) {
-            $this->_logger->debug("Can't get products shipping price");
-        }
         return $addInfo;
     }
 
@@ -321,8 +308,6 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
             'currency' => $this->getCurrencyCode($order)
         );
         if (!empty($merchant_data)) {
-            $merchant_data['Order ID'] = $orderId;
-            $merchant_data['Order Total'] = number_format($this->getAmount($order), 2, '.', '');
             $postData['merchant_data'] = json_encode(array($merchant_data));
             $postData['reservation_data'] = base64_encode(json_encode($reservation_data));
         }
