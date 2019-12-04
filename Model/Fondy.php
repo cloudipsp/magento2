@@ -161,7 +161,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
      * Get Merchant Data string
      *
      * @param $order
-     * @return null|string
+     * @return mixed
      */
     public function getMerchantDataString($order)
     {
@@ -169,6 +169,26 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
         if(!$addData){
             $addData = $order->getShippigAddress()->getData();
         }
+
+        $addInfo = [
+            'Fullname' => $addData['firstname'] . ' ' . $addData['middlename'] . ' ' . $addData['lastname']
+        ];
+        return $addInfo;
+    }
+
+    /**
+     * Get Reservation Data string
+     *
+     * @param $order
+     * @return mixed
+     */
+    public function getReservDataString($order)
+    {
+        $addData = $order->getBillingAddress()->getData();
+        if(!$addData){
+            $addData = $order->getShippigAddress()->getData();
+        }
+
         $skuString = '';
         try {
             $orderItems = $order->getAllVisibleItems();
@@ -188,34 +208,21 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
         }
 
         $addInfo = [
-            'Fullname' => $addData['firstname'] . ' ' . $addData['middlename'] . ' ' . $addData['lastname'],
-            'Products Sku' => $skuString
-        ];
-        return $addInfo;
-    }
-
-    /**
-     * Get Reservation Data string
-     *
-     * @param $order
-     * @return null|string
-     */
-    public function getReservDataString($order)
-    {
-        $addData = $order->getBillingAddress()->getData();
-        if(!$addData){
-            $addData = $order->getShippigAddress()->getData();
-        }
-
-        $addInfo = [
             'customer_zip' => isset($addData['postcode']) ? $addData['postcode'] : '',
             'customer_name' => $addData['firstname'] . ' ' . $addData['middlename'] . ' ' . $addData['lastname'],
             'customer_address' => isset($addData['street']) ? $addData['street'] : '',
             'customer_state' => isset($addData['region_id']) ? $addData['region_id'] : '',
             'customer_country' => isset($addData['country_id']) ? $addData['country_id'] : '',
             'phonemobile' => isset($addData['telephone']) ? $addData['telephone'] : '',
-            'account' => isset($addData['email']) ? $addData['email'] : ''
+            'account' => isset($addData['email']) ? $addData['email'] : '',
+            'products_sku' => $skuString
         ];
+
+        try {
+            $addInfo['Shipping total'] = number_format($order->getShippingAmount(), 2, '.', '');
+        } catch (Exception $e) {
+            $this->_logger->debug("Can't get products shipping price");
+        }
 
         return $addInfo;
     }
@@ -309,6 +316,8 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
         );
         if (!empty($merchant_data)) {
             $postData['merchant_data'] = json_encode(array($merchant_data));
+            $reservation_data['order_id'] = $orderId;
+            $reservation_data['order_total'] = number_format($this->getAmount($order), 2, '.', '');
             $postData['reservation_data'] = base64_encode(json_encode($reservation_data));
         }
 
