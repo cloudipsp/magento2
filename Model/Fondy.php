@@ -188,19 +188,19 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
         }
 
         $addInfo = [
-            'email' => isset($addData['email']) ? $addData['email'] : '',
-            'firstname' => isset($addData['firstname']) ? $addData['firstname'] : '',
-            'middlename' => isset($addData['middlename']) ? $addData['middlename'] : '',
-            'lastname' => isset($addData['lastname']) ? $addData['lastname'] : '',
-            'company' => isset($addData['company']) ? $addData['company'] : '',
-            'street' => isset($addData['street']) ? $addData['street'] : '',
-            'city' => isset($addData['city']) ? $addData['city'] : '',
-            'region' => isset($addData['region']) ? $addData['region'] : '',
-            'phone' => isset($addData['telephone']) ? $addData['telephone'] : '',
-            'products_sku' => $skuString
+            'Email' => isset($addData['email']) ? $addData['email'] : '',
+            'Firstname' => isset($addData['firstname']) ? $addData['firstname'] : '',
+            'Middlename' => isset($addData['middlename']) ? $addData['middlename'] : '',
+            'Lastname' => isset($addData['lastname']) ? $addData['lastname'] : '',
+            'Company' => isset($addData['company']) ? $addData['company'] : '',
+            'Street' => isset($addData['street']) ? $addData['street'] : '',
+            'City' => isset($addData['city']) ? $addData['city'] : '',
+            'Region' => isset($addData['region']) ? $addData['region'] : '',
+            'Phone' => isset($addData['telephone']) ? $addData['telephone'] : '',
+            'Products Sku' => $skuString
         ];
         try {
-            $addInfo['shipping_price'] = number_format($order->getShippingAmount(), 2, '.', '');
+            $addInfo['Shipping total'] = number_format($order->getShippingAmount(), 2, '.', '');
         } catch (Exception $e) {
             $this->_logger->debug("Can't get products shipping price");
         }
@@ -317,11 +317,13 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
             'sender_email' => $email,
             'product_id' => 'Fondy',
             'server_callback_url' => $this->urlBuilder->getUrl('fondy/url/fondysuccess'),
-            'response_url' => $this->urlBuilder->getUrl('checkout/onepage/success'),
+            'response_url' => $this->urlBuilder->getUrl('fondy/url/fondyresponse'),
             'currency' => $this->getCurrencyCode($order)
         );
         if (!empty($merchant_data)) {
-            $postData['merchant_data'] = json_encode($merchant_data);
+            $merchant_data['Order ID'] = $orderId;
+            $merchant_data['Order Total'] = number_format($this->getAmount($order), 2, '.', '');
+            $postData['merchant_data'] = json_encode(array($merchant_data));
             $postData['reservation_data'] = base64_encode(json_encode($reservation_data));
         }
 

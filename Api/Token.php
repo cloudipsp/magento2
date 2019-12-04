@@ -155,7 +155,7 @@ class Token implements ApiInterface
             if (!empty($email))
                 $requestData['sender_email'] = $email;
             if (!empty($merchant_data))
-                $requestData['merchant_data'] = $merchant_data;
+                $requestData['merchant_data'] = array($merchant_data);
             $sign = $this->getSignature($requestData, $decrypted_key);
             $requestData['signature'] = $sign;
 
