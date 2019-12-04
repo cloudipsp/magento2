@@ -112,9 +112,9 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
      * @param $orderId
      * @return float
      */
-    public function getAmount($orderId)
+    public function getAmount($order)
     {
-        return $this->getOrder($orderId)->getGrandTotal();
+        return $order->getGrandTotal();
     }
 
     public function getSignature($data, $password, $encoded = true)
@@ -147,14 +147,90 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
 
 
     /**
-     * Получить код используемой валюты по orderId заказа
+     * Получить код используемой валюты по $order
      *
-     * @param $orderId
+     * @param $order
      * @return null|string
      */
-    public function getCurrencyCode($orderId)
+    public function getCurrencyCode($order)
     {
-        return $this->getOrder($orderId)->getBaseCurrencyCode();
+        return $order->getBaseCurrencyCode();
+    }
+
+    /**
+     * Get Merchant Data string
+     *
+     * @param $order
+     * @return null|string
+     */
+    public function getMerchantDataString($order)
+    {
+        $addData = $order->getBillingAddress()->getData();
+        if(!$addData){
+            $addData = $order->getShippigAddress()->getData();
+        }
+        $skuString = '';
+        try {
+            $orderItems = $order->getAllVisibleItems();
+            $countItems = count($orderItems);
+            $i = 0;
+            foreach ($orderItems as $key => $orderItem) {
+                $sku = $orderItem->getData()['sku'];
+                if ($countItems > 1) {
+                    $skuString .= ++$i === $countItems ? $sku . '' : $sku . ', ';
+                } else {
+                    $skuString .= $sku;
+                }
+            }
+        } catch (Exception $e) {
+            $skuString = "No sku";
+            $this->_logger->debug("Cant get products sku");
+        }
+
+        $addInfo = [
+            'email' => isset($addData['email']) ? $addData['email'] : '',
+            'firstname' => isset($addData['firstname']) ? $addData['firstname'] : '',
+            'middlename' => isset($addData['middlename']) ? $addData['middlename'] : '',
+            'lastname' => isset($addData['lastname']) ? $addData['lastname'] : '',
+            'company' => isset($addData['company']) ? $addData['company'] : '',
+            'street' => isset($addData['street']) ? $addData['street'] : '',
+            'city' => isset($addData['city']) ? $addData['city'] : '',
+            'region' => isset($addData['region']) ? $addData['region'] : '',
+            'phone' => isset($addData['telephone']) ? $addData['telephone'] : '',
+            'products_sku' => $skuString
+        ];
+        try {
+            $addInfo['shipping_price'] = number_format($order->getShippingAmount(), 2, '.', '');
+        } catch (Exception $e) {
+            $this->_logger->debug("Can't get products shipping price");
+        }
+        return $addInfo;
+    }
+
+    /**
+     * Get Reservation Data string
+     *
+     * @param $order
+     * @return null|string
+     */
+    public function getReservDataString($order)
+    {
+        $addData = $order->getBillingAddress()->getData();
+        if(!$addData){
+            $addData = $order->getShippigAddress()->getData();
+        }
+
+        $addInfo = [
+            'customer_zip' => isset($addData['postcode']) ? $addData['postcode'] : '',
+            'customer_name' => $addData['firstname'] . ' ' . $addData['middlename'] . ' ' . $addData['lastname'],
+            'customer_address' => isset($addData['street']) ? $addData['street'] : '',
+            'customer_state' => isset($addData['region_id']) ? $addData['region_id'] : '',
+            'customer_country' => isset($addData['country_id']) ? $addData['country_id'] : '',
+            'phonemobile' => isset($addData['telephone']) ? $addData['telephone'] : '',
+            'account' => isset($addData['email']) ? $addData['email'] : ''
+        ];
+
+        return $addInfo;
     }
 
 
@@ -227,18 +303,28 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function getPostData($orderId)
     {
+        $order = $this->getOrder($orderId);
+        $merchant_data = $this->getMerchantDataString($order);
+        $reservation_data = $this->getReservDataString($order);
+        $email = $order->getCustomerEmail();
         $postData = array(
             'order_id' => $orderId . "#" . time(),
             'merchant_id' => $this->getConfigData("FONDY_MERCHANT_ID"),
             'amount' => round(
-                number_format($this->getAmount($orderId), 2, '.', '') * 100
+                number_format($this->getAmount($order), 2, '.', '') * 100
             ),
             'order_desc' => __("Pay order №") . $orderId,
+            'sender_email' => $email,
             'product_id' => 'Fondy',
             'server_callback_url' => $this->urlBuilder->getUrl('fondy/url/fondysuccess'),
             'response_url' => $this->urlBuilder->getUrl('checkout/onepage/success'),
-            'currency' => $this->getCurrencyCode($orderId)
+            'currency' => $this->getCurrencyCode($order)
         );
+        if (!empty($merchant_data)) {
+            $postData['merchant_data'] = json_encode($merchant_data);
+            $postData['reservation_data'] = base64_encode(json_encode($reservation_data));
+        }
+
         if ($this->getConfigData("invoice_before_fraud_review")) {
             $postData['preauth'] = "Y";
         }
@@ -297,9 +383,11 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
         $this->_logger->debug("processResponse", $debugData);
 
         if ($this->checkFondyResponse($responseData)) {
+
             list($orderId,) = explode('#', $responseData['order_id']);
             $order = $this->getOrder($orderId);
             $state = $order->getStatus();
+
             if (!empty($state) && $order && ($this->_processOrder($order, $responseData) === true)) {
                 return 'OK';
             } else {
@@ -328,11 +416,19 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
                 $this->_logger->debug("_processOrder: amount mismatch, order FAILED");
                 return false;
             }
+
             if ($response["order_status"] == 'approved') {
                 $this->createTransaction($order, $response);
+                $order_status = $this->getConfigData("order_status");
+                if ($order_status == 'pending') {
+                    //Preevent incorrect status
+                    $order_status = 'processing';
+                }
+                $order->addStatusHistoryComment("Fondy payment id: " . $response['payment_id']);
+                $order->addStatusHistoryComment("Fondy order time: " . $response['order_time']);
                 $order
-                    ->setState($this->getConfigData("order_status"))
-                    ->setStatus($order->getConfig()->getStateDefaultStatus($this->getConfigData("order_status")))
+                    ->setState($order_status)
+                    ->setStatus($order->getConfig()->getStateDefaultStatus($order_status))
                     ->save();
                 $this->_logger->debug("_processOrder: order state changed:" . $this->getConfigData("order_status"));
                 $this->_logger->debug("_processOrder: order data saved, order OK");

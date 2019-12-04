@@ -84,7 +84,7 @@ class Token implements ApiInterface
     /**
      * @inheritdoc
      */
-    public function getToken($cartId, $method)
+    public function getToken($cartId, $method, $customerData)
     {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $cart = $objectManager->get('\Magento\Checkout\Model\Cart');
@@ -115,7 +115,6 @@ class Token implements ApiInterface
         }
         $addData = $cart->getQuote()->getBillingAddress()->getData();
         $addInfo = [
-            'email' => isset($addData['email']) ? $addData['email'] : '',
             'firstname' => isset($addData['firstname']) ? $addData['firstname'] : '',
             'middlename' => isset($addData['middlename']) ? $addData['middlename'] : '',
             'lastname' => isset($addData['lastname']) ? $addData['lastname'] : '',
@@ -127,6 +126,18 @@ class Token implements ApiInterface
 
         try {
             $decrypted_key = $this->encryptor->decrypt($this->_config['secret_key']);
+            $email = $this->_checkoutSession->getQuote()->getCustomerEmail();
+
+            if (empty($email)){
+                $email = $customerData;
+            }
+            if (empty($email)){
+                $email = $cart->getQuote()->getShippingAddress()->getEmail();
+            }
+            if (empty($email)){
+                $email = $cart->getQuote()->getBillingAddress()->getEmail();
+            }
+
             $merchant_id = $this->_config['merchant_id'];
             $merchant_data = json_encode($addInfo);
             $requestData = [
@@ -140,6 +151,9 @@ class Token implements ApiInterface
                 'response_url' => $this->urlBuilder->getUrl('checkout/onepage/success'),
                 'currency' => $this->_checkoutSession->getQuote()->getCurrency()->getBaseCurrencyCode()
             ];
+
+            if (!empty($email))
+                $requestData['sender_email'] = $email;
             if (!empty($merchant_data))
                 $requestData['merchant_data'] = $merchant_data;
             $sign = $this->getSignature($requestData, $decrypted_key);

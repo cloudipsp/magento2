@@ -72,7 +72,8 @@ define(
                     var serviceUrl = urlApi.createUrl('/fondy/get-payment-token', {});
                     var Payload = {
                         cartId: quote.getQuoteId(),
-                        method: this.item.method
+                        method: this.item.method,
+                        customerData: $(loginFormSelector + ' input[name=username]').val()
                     };
                     storage.post(
                         serviceUrl, JSON.stringify(Payload)

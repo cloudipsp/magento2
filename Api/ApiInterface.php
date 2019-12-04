@@ -8,8 +8,9 @@ interface ApiInterface
 {
     /**
      * @param string $cartId
-     * @param string $method The payment method code
+     * @param string $method
+     * @param mixed $customerData
      * @return string
      */
-    public function getToken($cartId, $method);
+    public function getToken($cartId, $method, $customerData);
 }

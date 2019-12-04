@@ -20,7 +20,7 @@
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                 </field>
 				<field id="order_status" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>New Order Status</label>
+                    <label>Paid Order Status</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
                 </field>
 				<field id="invoice_before_fraud_review" translate="label" type="select" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -49,7 +49,7 @@
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                 </field>
                 <field id="order_status" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>New Order Status</label>
+                    <label>Paid Order Status</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
                 </field>
                 <field id="cctypes" translate="label" type="multiselect" sortOrder="68" showInDefault="1" showInWebsite="1" showInStore="0">
