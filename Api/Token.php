@@ -115,9 +115,7 @@ class Token implements ApiInterface
         }
         $addData = $cart->getQuote()->getBillingAddress()->getData();
         $addInfo = [
-            'firstname' => isset($addData['firstname']) ? $addData['firstname'] : '',
-            'middlename' => isset($addData['middlename']) ? $addData['middlename'] : '',
-            'lastname' => isset($addData['lastname']) ? $addData['lastname'] : '',
+            'customer_name' => $addData['firstname'] . ' ' . $addData['middlename'] . ' ' . $addData['lastname'],
             'company' => isset($addData['company']) ? $addData['company'] : '',
             'street' => isset($addData['street']) ? $addData['street'] : '',
             'city' => isset($addData['city']) ? $addData['city'] : '',
@@ -154,8 +152,10 @@ class Token implements ApiInterface
 
             if (!empty($email))
                 $requestData['sender_email'] = $email;
+
             if (!empty($merchant_data))
-                $requestData['merchant_data'] = array($merchant_data);
+                $requestData['merchant_data'] = $merchant_data;
+
             $sign = $this->getSignature($requestData, $decrypted_key);
             $requestData['signature'] = $sign;
 
@@ -175,7 +175,7 @@ class Token implements ApiInterface
             return $answer;
 
         } catch (\Exception $e) {
-            $this->logger->error(__('Payment capturing error.'));
+            $this->logger->error(__('Payment capturing error. Reason: ' . $e->getMessage()));
             throw new \Magento\Framework\Validator\Exception(__('Payment capturing error.'));
         }
     }
@@ -216,7 +216,7 @@ class Token implements ApiInterface
             return $response->getBody();
 
         } catch (\Exception $e) {
-            $this->logger->error(__('Payment capturing error.'));
+            $this->logger->error(__('Payment capturing error. Reason: ' . $e->getMessage()));
             throw new \Magento\Framework\Validator\Exception(__('Payment capturing error.'));
         }
 
