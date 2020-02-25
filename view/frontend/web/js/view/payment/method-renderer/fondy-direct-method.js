@@ -69,11 +69,15 @@ define(
                     this.isPlaceOrderActionAllowed(false);
                     fullScreenLoader.startLoader();
 
+                    var customerEmail = $(loginFormSelector + ' input[name=username]').val();
+                    if (customerEmail === undefined || customerEmail === '' || customerEmail === false) {
+                        customerEmail = window.checkoutConfig.customerData.email;
+                    }
                     var serviceUrl = urlApi.createUrl('/fondy/get-payment-token', {});
                     var Payload = {
                         cartId: quote.getQuoteId(),
                         method: this.item.method,
-                        customerData: $(loginFormSelector + ' input[name=username]').val()
+                        customerData: customerEmail
                     };
                     storage.post(
                         serviceUrl, JSON.stringify(Payload)
