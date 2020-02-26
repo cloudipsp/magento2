@@ -426,12 +426,17 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
                     ->setState($order_status)
                     ->setStatus($order->getConfig()->getStateDefaultStatus($order_status))
                     ->save();
+                if ($response["product_id"] == 'Fondy') {
+                    $this->sendSuccessEmail($order);
+                }
+
                 $this->_logger->debug("_processOrder: order state changed:" . $this->getConfigData("order_status"));
                 $this->_logger->debug("_processOrder: order data saved, order OK");
             } else {
                 $order
                     ->setState(Order::STATE_CANCELED)
                     ->setStatus($order->getConfig()->getStateDefaultStatus(Order::STATE_CANCELED))
+                    ->setCanSendNewEmailFlag(false)
                     ->save();
 
                 $this->_logger->debug("_processOrder: order state not STATE_CANCELED");
@@ -444,6 +449,22 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
         }
     }
 
+    /**
+     * Sending order confirm email
+     * @param $order
+     */
+    private function sendSuccessEmail($order)
+    {
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $orderSender = $objectManager->get('Magento\Sales\Model\Order\Email\Sender\OrderSender');
+        $orderSender->send($order, false, true);
+    }
+    /**
+     * Checking callback from fondy
+     * @param $fondySettings
+     * @param $response
+     * @return bool|string
+     */
     public function isPaymentValid($fondySettings, $response)
     {
         if ($fondySettings['merchant_id'] != $response['merchant_id']) {
