@@ -2,6 +2,6 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <referenceContainer name="page.wrapper">
-        <block class="Fondy\Fondy\Block\Widget\Redirect" template="Fondy_Fondy::html/fondy_form.phtml"/>
+        <block class="Fondy\Fondy\Block\Widget\Redirect" template="Fondy_Fondy::html/fondy_form.phtml" cacheable="false"/>
     </referenceContainer>
 </page>

@@ -33,13 +33,21 @@ class Submit extends Action implements CsrfAwareActionInterface
         $this->resultPageFactory = $resultPageFactory;
         $this->_checkoutSession = $checkoutSession;
         $this->fondy = $fondy_form;
+        $this->_isScopePrivate = true;
         parent::__construct($context);
     }
 
     public function execute()
     {
-        $page = $this->resultPageFactory->create();
-        $post_data = $this->fondy->getPostData();
+        $data = $this->getRequest()->getParams();
+        $post_data = $this->fondy->getPostData($data);
+
+        if (isset($post_data['error'])){
+            $message = __('Payment failed. No items in cart. Please try again.');
+            $this->messageManager->addError($message);
+            return $this->resultRedirectFactory->create()->setPath('checkout/cart');
+        }
+
         $request = $this->doRequest($post_data);
         $url = json_decode($request, true);
 
@@ -49,6 +57,7 @@ class Submit extends Action implements CsrfAwareActionInterface
             $this->restoreCart();
         }
 
+        $page = $this->resultPageFactory->create();
         return $page;
     }
 

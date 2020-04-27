@@ -65,6 +65,7 @@ class Redirect extends Template
         \Magento\Sales\Model\Order\Config $orderConfig,
         \Magento\Framework\App\Http\Context $httpContext,
         \Fondy\Fondy\Model\Fondy $paymentConfig,
+        \Magento\Sales\Model\OrderRepository $orderRepository,
         array $data = []
     )
     {
@@ -76,6 +77,7 @@ class Redirect extends Template
         $this->_isScopePrivate = true;
         $this->httpContext = $httpContext;
         $this->Config = $paymentConfig;
+        $this->_orderRepository = $orderRepository;
     }
 
 
@@ -98,11 +100,13 @@ class Redirect extends Template
     public function getAmount()
     {
         $orderId = $this->_checkoutSession->getLastOrderId();
+
         if ($orderId) {
             $incrementId = $this->_checkoutSession->getLastRealOrderId();
             return $this->Config->getAmount($incrementId);
         }
-        return null;
+
+        return ['error' => 'No data'];
     }
 
 
@@ -110,14 +114,28 @@ class Redirect extends Template
      * @return array|null
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function getPostData()
+    public function getPostData($data = [])
     {
+
         $orderId = $this->_checkoutSession->getLastOrderId();
-        if ($orderId) {
+
+        if ($orderId or isset($data['order'])) {
             $incrementId = $this->_checkoutSession->getLastRealOrderId();
+            if (!$incrementId) {
+                $order = $this->_orderRepository->get($data['order']);
+                if ($order) {
+                    if ($order->getStatus() == 'pending' and $order->getState() == 'new') {
+                        $incrementId = $order->getIncrementId();
+                    }
+                }
+            }
+            if (!$incrementId){
+                return ['error' => 'No data'];
+            }
             return $this->Config->getPostData($incrementId);
         }
-        return null;
+
+        return ['error' => 'No data'];
     }
 
 
@@ -128,7 +146,6 @@ class Redirect extends Template
      */
     public function getPayUrl()
     {
-
         $baseUrl = $this->getUrl("fondy/url");
         return "{$baseUrl}fondysuccess";
     }

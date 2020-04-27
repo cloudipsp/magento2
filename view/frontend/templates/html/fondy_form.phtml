@@ -1,16 +1,12 @@
 <form action="<?php echo $block->getGateUrl(); ?>" method="POST" id="FONDY_payment_form" style="display: none">
-    <?php if ( $block->getPostData() !== null ): ?>
-        <?php foreach ($block->getPostData() as $name => $value): ?>
-            <input type="hidden" name="<?php echo $block->escapeHtml($name); ?>"
-                   value="<?php echo $block->escapeHtml($value); ?>"/>
-        <?php endforeach; ?>
-    <?php endif; ?>
+    <?php foreach ($block->getPostData() as $name => $value): ?>
+        <input type="hidden" name="<?php echo $block->escapeHtml($name); ?>"
+               value="<?php echo $block->escapeHtml($value); ?>"/>
+    <?php endforeach; ?>
 </form>
 <button class="action primary" type="submit" form="FONDY_payment_form">Submit</button>
-<script type="text/x-magento-init">
-    require(["jquery"], function ($) {
-        $(document).ready(function () {
-            setTimeout(function() {$('#FONDY_payment_form').submit(); }, 500);
-        });
-    });
+<script type="text/javascript">
+     window.onload = function() {
+        document.getElementById("FONDY_payment_form").submit();
+     }
 </script>

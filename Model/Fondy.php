@@ -166,14 +166,16 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
     public function getMerchantDataString($order)
     {
         $addData = $order->getBillingAddress()->getData();
-        if(!$addData){
+        if (!$addData){
             $addData = $order->getShippigAddress()->getData();
         }
-
-        $addInfo = [
-            'Fullname' => $addData['firstname'] . ' ' . $addData['middlename'] . ' ' . $addData['lastname']
-        ];
-        return $addInfo;
+        if ($addData){
+            $addInfo = [
+                'Fullname' => $addData['firstname'] . ' ' . $addData['middlename'] . ' ' . $addData['lastname']
+            ];
+            return $addInfo;
+        }
+        return null;
     }
 
     /**
@@ -185,7 +187,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
     public function getReservDataString($order)
     {
         $addData = $order->getBillingAddress()->getData();
-        if(!$addData){
+        if (!$addData){
             $addData = $order->getShippigAddress()->getData();
         }
 
@@ -215,7 +217,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
             'customer_country' => isset($addData['country_id']) ? $addData['country_id'] : '',
             'phonemobile' => isset($addData['telephone']) ? $addData['telephone'] : '',
             'account' => isset($addData['email']) ? $addData['email'] : '',
-            'products_sku' => $skuString
+            'products_sku' => isset($skuString) ? $skuString : ''
         ];
 
         try {
@@ -298,6 +300,11 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
     public function getPostData($orderId)
     {
         $order = $this->getOrder($orderId);
+
+        if (!$order){
+            return ['error' => 'No data'];
+        }
+
         $merchant_data = $this->getMerchantDataString($order);
         $reservation_data = $this->getReservDataString($order);
         $email = $order->getCustomerEmail();

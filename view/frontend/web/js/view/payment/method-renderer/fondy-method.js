@@ -11,7 +11,8 @@ define(
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'mage/url'
+        'mage/url',
+        'Magento_Checkout/js/model/full-screen-loader'
     ],
     function ($,
               quote,
@@ -24,7 +25,8 @@ define(
               customer,
               checkoutData,
               additionalValidators,
-              url) {
+              url,
+              fullScreenLoader) {
         'use strict';
 
         return Component.extend({
@@ -39,11 +41,16 @@ define(
                     placeOrder;
                 if (this.validate() && additionalValidators.validate()) {
                     this.isPlaceOrderActionAllowed(false);
+                    fullScreenLoader.startLoader();
                     placeOrder = placeOrderAction(this.getData(), false, this.messageContainer);
 
                     $.when(placeOrder).fail(function () {
                         self.isPlaceOrderActionAllowed(true);
-                    }).done(this.afterPlaceOrder.bind(this));
+                    }).done(function (id, status) {
+                        self.afterPlaceOrder(id);
+                    }).always(function(){
+                        fullScreenLoader.stopLoader();
+                    });
                     return true;
                 }
                 return false;
@@ -55,8 +62,8 @@ define(
                 return true;
             },
 
-            afterPlaceOrder: function () {
-                window.location.replace(url.build('fondy/url/submit'));
+            afterPlaceOrder: function (id) {
+                window.location.replace(url.build('fondy/url/submit?nocache=' + (new Date().getTime()) + '&order=' + id));
             }
 
         });
