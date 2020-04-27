@@ -2,7 +2,7 @@
   "name": "cloudipsp/magento2",
   "description": "Fondy Magento 2 payment module",
   "type": "magento2-module",
-  "version": "1.2.9",
+  "version": "1.2.9.1",
   "license": [
     "OSL-3.0",
     "AFL-3.0"
