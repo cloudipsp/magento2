@@ -188,23 +188,23 @@ class Token implements ApiInterface
     private function doRequest($data)
     {
         try {
-            $httpHeaders = new \Zend\Http\Headers();
+            $httpHeaders = new \Laminas\Http\Headers();
             $httpHeaders->addHeaders([
                 'User-Agent' => 'Magento 2 CMS',
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json'
             ]);
-            $request = new \Zend\Http\Request();
+            $request = new \Laminas\Http\Request();
             $request->setHeaders($httpHeaders);
             $request->setUri('https://api.fondy.eu/api/checkout/token/');
-            $request->setMethod(\Zend\Http\Request::METHOD_POST);
+            $request->setMethod(\Laminas\Http\Request::METHOD_POST);
 
             $params = json_encode(['request' => $data]);
             $request->setContent($params);
 
-            $client = new \Zend\Http\Client();
+            $client = new \Laminas\Http\Client();
             $options = [
-                'adapter' => 'Zend\Http\Client\Adapter\Curl',
+                'adapter' => 'Laminas\Http\Client\Adapter\Curl',
                 'curloptions' => [CURLOPT_FOLLOWLOCATION => true],
                 'maxredirects' => 1,
                 'timeout' => 30

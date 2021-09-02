@@ -83,8 +83,8 @@ class FondyDirect extends \Magento\Payment\Model\Method\Cc
             $resourceCollection,
             $data
         );
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/fondy_direct.log');
-        $this->_logger = new \Zend\Log\Logger();
+        $writer = new \Laminas\Log\Writer\Stream(BP . '/var/log/fondy_direct.log');
+        $this->_logger = new \Laminas\Log\Logger();
         $this->_logger->addWriter($writer);
 
         $this->_minAmount = $this->getConfigData('min_order_total');
