@@ -80,6 +80,9 @@ class FondySuccess extends Action implements CsrfAwareActionInterface
         $paymentMethod = $this->_objectManager->create($model);
         $response = $paymentMethod->processResponse($data);
         $result = $this->jsonResultFactory->create();
+        if ($response != 'OK') {
+            $result->setHttpResponseCode(400);
+        }
         $result->setData(['result' => $response]);
         return $result;
     }
