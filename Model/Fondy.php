@@ -359,7 +359,7 @@ class Fondy extends \Magento\Payment\Model\Method\AbstractMethod
         );
         $validated = $this->isPaymentValid($settings, $response);
         if ($validated === true) {
-            $this->_logger->debug("Responce - OK");
+            $this->_logger->debug("Response - OK");
             return true;
         } else {
             $this->_logger->debug($validated);
